@@ -582,11 +582,11 @@ async def upload(bot: Client, m: Message):
                         url = re.search(r"(https://.*?playlist.m3u8.*?)\"", text).group(1)
                         
            elif 'classplusapp' in url or "testbook.com" in url or "classplusapp.com/drm" in url or "media-cdn.classplusapp.com/drm" in url:
-                url, contentId = url.split('&')
+                url, contentId = url.split('&contentHashIdl=')
                 
                 headers = {
                     'host': 'api.classplusapp.com',
-                    'x-access-token': f'eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9gft',    
+                    'x-access-token': f'{working_token}',    
                     'accept-language': 'EN',
                     'api-version': '18',
                     'app-version': '1.4.73.2',
@@ -606,7 +606,13 @@ async def upload(bot: Client, m: Message):
                     'offlineDownload': "false"
                 }
 
-                url = requests.get("https://api.classplusapp.com/cams/uploader/video/jw-signed-url", params=params, headers=headers).json().get("url")
+                res = requests.get("https://api.classplusapp.com/cams/uploader/video/jw-signed-url", params=params, headers=headers).json()
+                
+                if "testbook.com" in url or "classplusapp.com/drm" in url or "media-cdn.classplusapp.com/drm" in url:
+                    url = res['drmUrls']['manifestUrl']
+                    
+                else:
+                    url = res["url"]
 
             elif "https://appx-transcoded-videos.livelearn.in/videos/rozgar-data/" in url:
                 url = url.replace("https://appx-transcoded-videos.livelearn.in/videos/rozgar-data/", "")
